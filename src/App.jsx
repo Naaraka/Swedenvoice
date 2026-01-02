@@ -1,3 +1,4 @@
+// Narad Voice Platform - v1.0.2 - Live Bridge Updated
 import React, { useState, useEffect, useRef } from 'react';
 import { Conversation } from '@elevenlabs/client';
 import './App.css';
@@ -185,7 +186,7 @@ function VoiceBridgeModal({ agent, onClose }) {
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       const conversation = await Conversation.startSession({
-        agentId: agent.agentId,
+        agentId: agent.agentId.replace('agent_', ''),
         onConnect: () => {
           setStatus('connected');
           console.log('Connected to Narad Voice Bridge');
@@ -261,7 +262,10 @@ function VoiceBridgeModal({ agent, onClose }) {
           <p style={{ marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
             {status === 'connected'
               ? "You're speaking with the Narad AI. Go ahead, ask anything!"
-              : "Testing the voice bridge will use your microphone for real-time interaction."}
+              : `Bridge ID: ${agent.agentId.replace('agent_', '')}`}
+          </p>
+          <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '0.5rem' }}>
+            {status === 'idle' ? "Click start to begin voice interaction." : ""}
           </p>
         </div>
       </div>
