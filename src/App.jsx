@@ -144,8 +144,6 @@ function App() {
         </div>
       )}
 
-      {/* Narad Proprietary SDK Wrapper */}
-      <script src="/narad-widget.js" type="text/javascript"></script>
 
       <style>{`
         .wave-container {
