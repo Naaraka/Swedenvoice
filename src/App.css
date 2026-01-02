@@ -259,6 +259,126 @@ pre {
   font-size: 0.9rem;
 }
 
+/* Voice Bridge Visualizer */
+.status-indicator {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+}
+
+.status-indicator.ready {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.status-indicator.connecting {
+  background: rgba(255, 165, 0, 0.2);
+  color: orange;
+  animation: blink 1s infinite;
+}
+
+.status-indicator.connected {
+  background: rgba(52, 211, 153, 0.2);
+  color: #10b981;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.visualizer {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sphere {
+  width: 60px;
+  height: 60px;
+  background: var(--primary);
+  border-radius: 50%;
+  z-index: 2;
+  transition: var(--transition);
+  box-shadow: 0 0 30px var(--primary);
+}
+
+.ring {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.visualizer.active .sphere {
+  animation: pulse-sphere 2s infinite;
+}
+
+.visualizer.active .ring {
+  animation: ripple 2s infinite;
+}
+
+.visualizer.active .ring:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.visualizer.speaking .sphere {
+  transform: scale(1.2);
+  background: #a78bfa;
+  box-shadow: 0 0 50px #a78bfa;
+}
+
+@keyframes pulse-sphere {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.start-call-btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+.stop-call-btn {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.stop-call-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #f87171;
+}
+
 @media (max-width: 768px) {
   header h1 {
     font-size: 2.5rem;

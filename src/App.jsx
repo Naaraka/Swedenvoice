@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Conversation } from '@elevenlabs/client';
 import './App.css';
 
 const agents = [
@@ -109,34 +110,10 @@ function App() {
       </footer>
 
       {activeModal === 'test' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Testing: {selectedAgent?.name}</h3>
-              <button className="close-btn" onClick={closeModal}>&times;</button>
-            </div>
-            <div className="modal-body" style={{ textAlign: 'center' }}>
-              <div className="test-interface">
-                <div className="wave-container">
-                  {/* Simulated Waveform */}
-                  <div className="wave"></div>
-                  <div className="wave"></div>
-                  <div className="wave"></div>
-                </div>
-                <p style={{ marginTop: '2rem', color: 'var(--text-muted)' }}>
-                  Initializing Narad Voice Core...
-                </p>
-                <div style={{ marginTop: '2rem' }}>
-                  {/* Narad Branded Widget */}
-                  <narad-agent agent-id={selectedAgent?.agentId}></narad-agent>
-                </div>
-                <p style={{ fontSize: '0.8rem', marginTop: '1rem', opacity: 0.6 }}>
-                  (Agent starts automatically once the voice bridge is established)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <VoiceBridgeModal
+          agent={selectedAgent}
+          onClose={closeModal}
+        />
       )}
 
       {activeModal === 'snippet' && (
@@ -193,6 +170,103 @@ function App() {
             50% { transform: scaleY(1.5); }
         }
       `}</style>
+    </div>
+  );
+}
+
+function VoiceBridgeModal({ agent, onClose }) {
+  const [status, setStatus] = useState('idle'); // 'idle' | 'connecting' | 'connected'
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const conversationRef = useRef(null);
+
+  const startConversation = async () => {
+    try {
+      setStatus('connecting');
+
+      // Request microphone access
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      const conversation = await Conversation.startSession({
+        agentId: agent.agentId,
+        onConnect: () => {
+          setStatus('connected');
+          console.log('Connected to Narad Voice Bridge');
+        },
+        onDisconnect: () => {
+          setStatus('idle');
+          console.log('Disconnected from Narad Voice Bridge');
+        },
+        onError: (error) => {
+          console.error('Voice Bridge Error:', error);
+          setStatus('idle');
+          alert('Failed to connect to the voice bridge. Please ensure the Agent ID is correct and public.');
+        },
+        onModeChange: (mode) => {
+          setIsSpeaking(mode.mode === 'speaking');
+        },
+      });
+
+      conversationRef.current = conversation;
+    } catch (error) {
+      console.error('Failed to start conversation:', error);
+      setStatus('idle');
+      alert('Microphone access is required to test the agent.');
+    }
+  };
+
+  const stopConversation = async () => {
+    if (conversationRef.current) {
+      await conversationRef.current.endSession();
+      conversationRef.current = null;
+    }
+    setStatus('idle');
+  };
+
+  useEffect(() => {
+    return () => {
+      if (conversationRef.current) {
+        conversationRef.current.endSession();
+      }
+    };
+  }, []);
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Narad Voice Bridge: {agent?.name}</h3>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
+        <div className="modal-body" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+          <div className={`status-indicator ${status}`}>
+            {status === 'connected' ? '● LIVE' : status === 'connecting' ? 'CONNECTING...' : 'READY'}
+          </div>
+
+          <div className={`visualizer ${status === 'connected' ? 'active' : ''} ${isSpeaking ? 'speaking' : ''}`}>
+            <div className="sphere"></div>
+            <div className="ring"></div>
+            <div className="ring"></div>
+          </div>
+
+          <div style={{ marginTop: '3rem' }}>
+            {status === 'idle' ? (
+              <button className="btn-primary start-call-btn" onClick={startConversation}>
+                Start Conversation
+              </button>
+            ) : (
+              <button className="btn-secondary stop-call-btn" onClick={stopConversation}>
+                End Session
+              </button>
+            )}
+          </div>
+
+          <p style={{ marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            {status === 'connected'
+              ? "You're speaking with the Narad AI. Go ahead, ask anything!"
+              : "Testing the voice bridge will use your microphone for real-time interaction."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
