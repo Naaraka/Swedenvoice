@@ -181,36 +181,54 @@ function VoiceBridgeModal({ agent, onClose }) {
 
   const startConversation = async () => {
     try {
+      console.log('Initiating Narad Voice Bridge session...');
       setStatus('connecting');
 
-      // Request microphone access
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // The SDK handles permissions internally, but we can check if we want
+      // For now, let's rely on the SDK's robust internal management to avoid conflicts
 
       const conversation = await Conversation.startSession({
         agentId: agent.agentId.replace('agent_', ''),
         onConnect: () => {
           setStatus('connected');
-          console.log('Connected to Narad Voice Bridge');
+          console.log('✅ Connected to Narad Voice Bridge');
         },
-        onDisconnect: () => {
+        onDisconnect: (event) => {
           setStatus('idle');
-          console.log('Disconnected from Narad Voice Bridge');
+          console.log('❌ Disconnected from Narad Voice Bridge:', event);
+          if (event && event.code && event.code !== 1000) {
+            console.warn(`Bridge closed with code: ${event.code}. Reason: ${event.reason || 'No reason provided'}`);
+          }
         },
         onError: (error) => {
-          console.error('Voice Bridge Error:', error);
+          console.error('⚠️ Voice Bridge Error:', error);
           setStatus('idle');
-          alert('Failed to connect to the voice bridge. Please ensure the Agent ID is correct and public.');
+          // More descriptive alert
+          const errorMsg = typeof error === 'string' ? error : (error.message || 'Unknown error');
+          alert(`Voice Bridge Error: ${errorMsg}\n\nNote: Ensure the Agent is set to "Public" in the dashboard and your microphone is enabled.`);
         },
         onModeChange: (mode) => {
+          console.log('Mode Change:', mode);
           setIsSpeaking(mode.mode === 'speaking');
         },
+        onMessage: (message) => {
+          // Log incoming messages for debugging
+          console.log('Bridge Message:', message);
+        }
       });
 
       conversationRef.current = conversation;
+      console.log('Session instance created');
     } catch (error) {
-      console.error('Failed to start conversation:', error);
+      console.error('🚨 Failed to start conversation:', error);
       setStatus('idle');
-      alert('Microphone access is required to test the agent.');
+
+      // Handle the case where the promise might reject with a CloseEvent
+      if (error instanceof CloseEvent || (error && error.constructor && error.constructor.name === 'CloseEvent')) {
+        alert('Connection failed: The server closed the connection. This often happens if the Agent ID is incorrect or the agent is not set to "Public/Web SDK enabled" in the ElevenLabs dashboard.');
+      } else {
+        alert('Microphone access is required or the connection was interrupted. Please check your browser settings.');
+      }
     }
   };
 
