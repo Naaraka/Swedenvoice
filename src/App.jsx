@@ -75,7 +75,7 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <div className="logo">NARAD</div>
+        <div className="logo">NARAD VOICE v2</div>
         <div className="nav-links">
           <a href="#agents">Agents</a>
           <a href="#features">Features</a>
@@ -108,6 +108,7 @@ function App() {
 
       <footer className="footer">
         <p>&copy; 2026 Narad Voice Solutions. High-fidelity Conversational Intelligence.</p>
+        <p style={{ fontSize: '0.7rem', opacity: 0.3, marginTop: '0.5rem' }}>Deploy ID: 2026-01-03-BRIDGE-V2</p>
       </footer>
 
       {activeModal === 'test' && (
