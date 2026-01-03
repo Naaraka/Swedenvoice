@@ -187,8 +187,10 @@ function VoiceBridgeModal({ agent, onClose }) {
       // The SDK handles permissions internally, but we can check if we want
       // For now, let's rely on the SDK's robust internal management to avoid conflicts
 
+      console.log('Using Agent ID:', agent.agentId);
+
       const conversation = await Conversation.startSession({
-        agentId: agent.agentId.replace('agent_', ''),
+        agentId: agent.agentId, // Use the ID exactly as defined
         onConnect: () => {
           setStatus('connected');
           console.log('✅ Connected to Narad Voice Bridge');
