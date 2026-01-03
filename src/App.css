@@ -1,7 +1,8 @@
 :root {
   --primary: #8b5cf6;
   --primary-hover: #a78bfa;
-  --bg: #0a0a0b;
+  --bg: #ff0000;
+  /* FORCE RED BACKGROUND FOR VERIFICATION */
   --card-bg: #161617;
   --text: #f4f4f5;
   --text-muted: #a1a1aa;
