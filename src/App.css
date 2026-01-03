@@ -1,8 +1,8 @@
 :root {
   --primary: #8b5cf6;
   --primary-hover: #a78bfa;
-  --bg: #ff0000;
-  /* FORCE RED BACKGROUND FOR VERIFICATION */
+  --bg: #030303;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #030303 100%);
   --card-bg: #161617;
   --text: #f4f4f5;
   --text-muted: #a1a1aa;
@@ -19,10 +19,12 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
 .app {
